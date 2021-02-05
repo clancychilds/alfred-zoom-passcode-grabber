@@ -3,13 +3,16 @@
 from __future__ import print_function
 import datetime
 import pickle
+import json
 import os.path
+import pprint
 import re
 import sys
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from workflow import Workflow3, ICON_WEB, web, Variables
+from workflow.util import set_config
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -39,12 +42,11 @@ def main(wf):
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('calendar', 'v3', credentials=creds)
+    service = build('calendar', 'v3', credentials=creds, cache_discovery=False)
 
     # Call the Calendar API
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    #test_time = "2021-01-26T11:30:00Z"
-    #print('Getting the next event')
+    #now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    now = "2021-02-05T08:30:00Z" # for testing
     events_result = service.events().list(calendarId='primary', timeMin=now,
                                         maxResults=2, singleEvents=True,
                                         orderBy='startTime').execute()
@@ -53,7 +55,8 @@ def main(wf):
     if not events:
         print('No upcoming events found.')
     for event in events:
-        #print(event)
+        #pp = pprint.PrettyPrinter(indent=4)
+        #wf.logger.debug(pp.pformat(event))
         zoom_code = fetch_passcode(event)
         #print(event['summary'], zoom_code)
         wf.add_item(title=event['summary'],
@@ -61,7 +64,6 @@ def main(wf):
                      arg=zoom_code,
                      valid=True,
                      icon=ICON_WEB)
-        #pyperclip.copy(zoom_code)
     wf.send_feedback()
 
 def fetch_passcode(event):
@@ -71,8 +73,11 @@ def fetch_passcode(event):
     except KeyError:
         try: 
             description = event['description']
-            #print(description)
-            zoom_code = re.match(r'.*[Pp]asscode[^\d]*([\d]{6})', description).group(1)
+            description = description.replace('\n', ' ')
+            #wf.logger.debug(description)
+            matched_codes = re.match(r".*[Pp]asscode[^\d]*([\d]{6})", description)
+            #wf.logger.debug(f"Matched Codes: {matched_codes}")
+            zoom_code = matched_codes.group(1)
         except (KeyError, AttributeError):
             zoom_code = ''
     return(zoom_code)

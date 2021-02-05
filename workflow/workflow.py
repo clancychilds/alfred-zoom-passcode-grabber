@@ -22,7 +22,7 @@ up your Python script to best utilise the :class:`Workflow` object.
 from __future__ import print_function, unicode_literals
 
 import binascii
-import pickle as cPickle
+import pickle
 from copy import deepcopy
 import json
 import logging
@@ -36,6 +36,7 @@ import string
 import subprocess
 import sys
 import six
+from six.moves import getcwd
 import time
 import unicodedata
 
@@ -859,9 +860,9 @@ class Settings(dict):
         data.update(self)
 
         with LockFile(self._filepath, 0.5):
-            with atomic_writer(self._filepath, 'wb') as fp:
-                json.dump(data, fp, sort_keys=True, indent=2,
-                          encoding='utf-8')
+            with atomic_writer(self._filepath, 'w') as fp:
+                json.dump(data, fp, sort_keys=True, indent=2)
+                          #encoding='utf-8')
 
     # dict methods
     def __setitem__(self, key, value):
@@ -1300,7 +1301,7 @@ class Workflow(object):
             # the library is in. CWD will be the workflow root if
             # a workflow is being run in Alfred
             candidates = [
-                os.path.abspath(six.moves.getcwd()),
+                os.path.abspath(getcwd()),
                 os.path.dirname(os.path.abspath(os.path.dirname(__file__)))]
 
             # climb the directory tree until we find `info.plist`
@@ -2084,7 +2085,7 @@ class Workflow(object):
 
             if not sys.stdout.isatty():  # Show error in Alfred
                 if text_errors:
-                    print(unicode(err).encode('utf-8'), end='')
+                    print(six.text_type(err).encode('utf-8'), end='')
                 else:
                     self._items = []
                     if self._name:
@@ -2094,7 +2095,7 @@ class Workflow(object):
                     else:  # pragma: no cover
                         name = os.path.dirname(__file__)
                     self.add_item("Error in workflow '%s'" % name,
-                                  unicode(err),
+                                  six.text_type(err),
                                   icon=ICON_ERROR)
                     self.send_feedback()
             return 1
@@ -2246,7 +2247,7 @@ class Workflow(object):
 
             version = self.version
 
-        if isinstance(version, basestring):
+        if isinstance(version, six.string_types):
             from update import Version
             version = Version(version)
 
@@ -2457,7 +2458,7 @@ class Workflow(object):
             h = groups.get('hex')
             password = groups.get('pw')
             if h:
-                password = unicode(binascii.unhexlify(h), 'utf-8')
+                password = six.text_type(binascii.unhexlify(h), 'utf-8')
 
         self.logger.debug('got password : %s:%s', service, account)
 
@@ -2718,7 +2719,7 @@ class Workflow(object):
         if isascii(text):
             return text
         text = ''.join([ASCII_REPLACEMENTS.get(c, c) for c in text])
-        return unicode(unicodedata.normalize('NFKD',
+        return six.text_type(unicodedata.normalize('NFKD',
                        text).encode('ascii', 'ignore'))
 
     def dumbify_punctuation(self, text):
@@ -2766,7 +2767,9 @@ class Workflow(object):
     def _load_info_plist(self):
         """Load workflow info from ``info.plist``."""
         # info.plist should be in the directory above this one
-        self._info = plistlib.readPlist(self.workflowfile('info.plist'))
+        with open(self.workflowfile('info.plist'), 'rb') as f:
+            self._info = plistlib.load(f)
+        
         self._info_loaded = True
 
     def _create(self, dirpath):
