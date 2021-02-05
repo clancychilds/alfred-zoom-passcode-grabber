@@ -104,7 +104,9 @@
 	<key>readme</key>
 	<string>This workflow will fetch the next two meetings in your Google Calendar and parse out the Zoom Passcodes for them. When a meeting is selected, the passcode is copied to your clipboard for easy pasting into the Zoom Meeting Passcode dialog box.
 
-On the first run of this workflow, you will be asked to authenticate your Google Calendar so that the workflow can fetch your meetings. You should only have to do this once.</string>
+On the first run of this workflow, you will be asked to authenticate your Google Calendar so that the workflow can fetch your meetings. You should only have to do this once.
+
+https://github.com/clancychilds/alfred-zoom-passcode-grabber</string>
 	<key>uidata</key>
 	<dict>
 		<key>A29B06ED-E58D-4136-8031-2392D26DC2E4</key>
@@ -125,6 +127,6 @@ On the first run of this workflow, you will be asked to authenticate your Google
 	<key>version</key>
 	<string>0.1</string>
 	<key>webaddress</key>
-	<string>clancychilds.com</string>
+	<string>https://github.com/clancychilds/alfred-zoom-passcode-grabber</string>
 </dict>
 </plist>
