@@ -4,6 +4,8 @@ and then have to go and copy-paste the passcode from the calendar entry.
 
 This workflow helps automate that flow.
 
+You can download the exported workflow to install here: https://github.com/clancychilds/alfred-zoom-passcode-grabber/raw/main/Zoom%20Passcode%20Grabber.alfredworkflow
+
 On the first run (defaulted by typing `zp` into Alfred), an Google authentication flow will open in the browser.
 Once this is complete, the workflow will be able to read your Google Calendar.
 
