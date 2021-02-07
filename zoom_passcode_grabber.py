@@ -45,8 +45,8 @@ def main(wf):
     service = build('calendar', 'v3', credentials=creds, cache_discovery=False)
 
     # Call the Calendar API
-    #now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    now = "2021-02-05T08:30:00Z" # for testing
+    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    #now = "2021-02-05T10:30:00Z" # for testing
     events_result = service.events().list(calendarId='primary', timeMin=now,
                                         maxResults=2, singleEvents=True,
                                         orderBy='startTime').execute()
